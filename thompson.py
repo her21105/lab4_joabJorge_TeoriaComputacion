@@ -174,3 +174,31 @@ def renumber_by_traversal(nfa: NFA) -> NFA:
     return NFA(start=new_id[nfa.start],
                accept=new_id[nfa.accept],
                delta=new_delta)
+
+class _Renamer:
+    """Stateful helper that issues 0,1,2,... as we build."""
+    def __init__(self):
+        self.next_id = 0
+    def __call__(self) -> State:
+        s = State(self.next_id)
+        self.next_id += 1
+        return s
+
+def build_with_clean_labels(ast_root: Node) -> NFA:
+    """
+    Build the ε-NFA via Thompson, but label states 0,1,2,... in creation order.
+    Accepting state will always be the largest id.
+    """
+    renamer = _Renamer()
+
+    # monkey-patch Thompson's _new_state for the duration of this call
+    old_new = NFA._new_state
+    NFA._new_state = renamer.__call__
+
+    try:
+        nfa = NFA.from_ast(ast_root)
+    finally:
+        # restore original stub
+        NFA._new_state = old_new
+
+    return nfa

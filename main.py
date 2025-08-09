@@ -1,7 +1,7 @@
 from tree import build_ast, render_tree
 from shunting_yard import infix_to_postfix, normalize
 import graphviz
-from thompson import NFA, renumber
+from thompson import NFA, renumber, build_with_clean_labels
 from nfa import accepts
 
 with open("infix.txt", "r", encoding='utf-8') as f:
@@ -18,8 +18,8 @@ with open("infix.txt", "r", encoding='utf-8') as f:
 
         # Build NFA
         NFA._counter = 0   
-        nfa = NFA.from_ast(ast)
-        nfa = renumber(nfa)   
+        nfa = build_with_clean_labels(ast)
+  
 
         # Save NFA graph
         dot_src = nfa.to_dot()
