@@ -97,7 +97,8 @@ def precedence(op):
     return {'|': 1, '.': 2, '*': 3}.get(op, 0)
 
 def add_explicit_concat(regex: str) -> list[str]:
-    token_re = re.compile(r'ε|\\.|[a-zA-Z0-9]+|[()|*]')
+    #token_re = re.compile(r'ε|\\.|[a-zA-Z0-9]+|[()|*]')
+    token_re = re.compile(r'ε|\\.|[()|*+?]|[^()|*+?]')
     tokens   = token_re.findall(regex)
 
     out = []

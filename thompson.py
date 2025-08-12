@@ -56,15 +56,28 @@ class NFA:
         return cls._symbol(root.value)
 
     # --- basic bricks ---
+    #@classmethod
+    #def _symbol(cls, sym: str) -> 'NFA':
+        #s0, s1 = cls._new_state(), cls._new_state()
+        #delta = {s0: {sym: {s1}}}
+        #return NFA(s0, s1, delta)
+   
     @classmethod
     def _symbol(cls, sym: str) -> 'NFA':
         s0, s1 = cls._new_state(), cls._new_state()
-        delta = {s0: {sym: {s1}}}
+        label = '' if sym == 'ε' else sym   # ← ε se vuelve borde vacío
+        delta = {s0: {label: {s1}}}
         return NFA(s0, s1, delta)
 
+    #@classmethod
+    #def _epsilon(cls) -> 'NFA':
+    #    return cls._symbol('ε')
+    
     @classmethod
     def _epsilon(cls) -> 'NFA':
-        return cls._symbol('ε')
+        s0, s1 = cls._new_state(), cls._new_state()
+        delta = {s0: {'': {s1}}}
+        return NFA(s0, s1, delta)
 
     @classmethod
     def _concat(cls, n1: 'NFA', n2: 'NFA') -> 'NFA':
@@ -117,6 +130,28 @@ class NFA:
             for sym, qs in trans.items():
                 label = sym if sym else 'ε'
                 for tgt in qs:
+                    lines.append(f'"{q}" -> "{tgt}" [label="{label}"];')
+        lines.append("}")
+        return "\n".join(lines)
+    
+    def to_dot_with_labels(self, label_map):
+        lines = ["digraph G {"]
+        lines.append("rankdir=LR;")
+        lines.append('node [shape=doublecircle];')
+        lines.append(f'"{self.accept}" [label="{label_map[self.accept]}"];')
+        lines.append('node [shape=circle];')
+
+        lines.append('{ rank = source; start; }')
+        lines.append('start [shape=none, label="", width=0, height=0];')
+        lines.append(f'start -> "{self.start}"')
+
+        for s in self.states():
+            lines.append(f'"{s}" [label="{label_map[s]}"];')
+
+        for q, trans in self.delta.items():
+            for sym, qs in trans.items():
+                for tgt in qs:
+                    label = sym if sym else 'ε'
                     lines.append(f'"{q}" -> "{tgt}" [label="{label}"];')
         lines.append("}")
         return "\n".join(lines)
@@ -202,3 +237,4 @@ def build_with_clean_labels(ast_root: Node) -> NFA:
         NFA._new_state = old_new
 
     return nfa
+
