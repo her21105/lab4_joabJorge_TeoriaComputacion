@@ -30,16 +30,11 @@ with open("infix.txt", "r", encoding='utf-8') as f:
         g.render(nfa_file, format='png', cleanup=True)
         print(f"NFA saved to {nfa_file}.png")
 
-        while True:
-            renumber_choice = input("Renumber states? (y/n): ").strip().lower()
-            if renumber_choice in {'y', 'n'}:
-                break
-            print("Please enter 'y' or 'n'.")
-            # Simulation
-            w = input("Enter string w to test: ").strip()
-            if accepts(nfa, w):
-                print("sí")
-            else:
-                print("no")
+        
+        w = input("Enter string w to test: ").strip()
+        if accepts(nfa, w):
+            print("sí")
+        else:
+            print("no")
 
         
